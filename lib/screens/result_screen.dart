@@ -66,9 +66,9 @@ class _ResultScreenState extends State<ResultScreen>
       body: AppContentCanvas(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(
-            AppSpacing.containerMargin,
+            AppSpacing.md,
             AppSpacing.lg,
-            AppSpacing.containerMargin,
+            AppSpacing.md,
             AppSpacing.xl,
           ),
           child: Column(
@@ -94,7 +94,7 @@ class _ResultScreenState extends State<ResultScreen>
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     if (result.flaggedIngredients.isEmpty)
-                      _EmptyFlaggedCard(palette: palette)
+                      const _EmptyFlaggedCard()
                     else
                       for (final flagged in result.flaggedIngredients)
                         Padding(
@@ -167,11 +167,11 @@ class _ResultScreenState extends State<ResultScreen>
 }
 
 class _EmptyFlaggedCard extends StatelessWidget {
-  final AppPalette palette;
-  const _EmptyFlaggedCard({required this.palette});
+  const _EmptyFlaggedCard();
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,

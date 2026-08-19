@@ -44,7 +44,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
                   const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.containerMargin - 8,
+                  horizontal: AppSpacing.base,
                 ),
                 child: Row(
                   children: [

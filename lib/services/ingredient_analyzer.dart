@@ -27,7 +27,8 @@ class IngredientAnalyzer {
       // so the bare E322 should not be reported as possibly egg-derived.
       if (_db.isSafeFalsePositive(segment.name)) continue;
 
-      _matchToken(segment.name, cleaned).forEach(add);
+      final match = _matchToken(segment.name, cleaned);
+      if (match != null) add(match);
 
       for (final match in _eNumberRegex.allMatches(segment.text)) {
         final ingredient = _db.exactMatch('e${match.group(1)!.toLowerCase()}');
@@ -119,50 +120,33 @@ class IngredientAnalyzer {
         .trim();
   }
 
-  List<FlaggedIngredient> _matchToken(String token, String fullText) {
-    final results = <FlaggedIngredient>[];
+  FlaggedIngredient? _matchToken(String token, String fullText) {
     final lower = token.toLowerCase().trim();
 
-    if (_db.isSafeFalsePositive(lower)) return results;
+    if (_db.isSafeFalsePositive(lower)) return null;
+
+    FlaggedIngredient make(Ingredient ingredient, String matched) {
+      final idx = fullText.indexOf(lower);
+      return FlaggedIngredient(
+        matchedText: matched,
+        ingredient: ingredient,
+        startIndex: idx >= 0 ? idx : 0,
+        endIndex: idx >= 0 ? idx + lower.length : lower.length,
+      );
+    }
 
     final exact = _db.exactMatch(lower);
-    if (exact != null) {
-      final idx = fullText.indexOf(lower);
-      results.add(FlaggedIngredient(
-        matchedText: token,
-        ingredient: exact,
-        startIndex: idx >= 0 ? idx : 0,
-        endIndex: idx >= 0 ? idx + lower.length : lower.length,
-      ));
-      return results;
-    }
+    if (exact != null) return make(exact, token);
 
     final substring = _db.substringMatch(lower);
-    if (substring != null) {
-      final idx = fullText.indexOf(lower);
-      results.add(FlaggedIngredient(
-        matchedText: token,
-        ingredient: substring,
-        startIndex: idx >= 0 ? idx : 0,
-        endIndex: idx >= 0 ? idx + lower.length : lower.length,
-      ));
-      return results;
-    }
+    if (substring != null) return make(substring, token);
 
     if (lower.length >= 5) {
       final fuzzy = _fuzzyMatch(lower);
-      if (fuzzy != null) {
-        final idx = fullText.indexOf(lower);
-        results.add(FlaggedIngredient(
-          matchedText: '$token (likely: ${fuzzy.name})',
-          ingredient: fuzzy,
-          startIndex: idx >= 0 ? idx : 0,
-          endIndex: idx >= 0 ? idx + lower.length : lower.length,
-        ));
-      }
+      if (fuzzy != null) return make(fuzzy, '$token (likely: ${fuzzy.name})');
     }
 
-    return results;
+    return null;
   }
 
   /// Recovers OCR damage ("ge|atin" -> "gelatin") without inventing matches.

@@ -95,9 +95,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: AppContentCanvas(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
-            AppSpacing.containerMargin,
+            AppSpacing.md,
             AppSpacing.lg,
-            AppSpacing.containerMargin,
+            AppSpacing.md,
             AppSpacing.lg,
           ),
           children: [

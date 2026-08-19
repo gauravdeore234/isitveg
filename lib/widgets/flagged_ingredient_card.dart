@@ -63,59 +63,42 @@ class FlaggedIngredientCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.base),
-          isDefinite ? const _NonVegBadge() : const _PossiblyBadge(),
+          _severityBadge(isDefinite, palette),
         ],
       ),
     );
   }
 }
 
-class _NonVegBadge extends StatelessWidget {
-  const _NonVegBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.palette;
+Widget _severityBadge(bool isDefinite, AppPalette palette) {
+  if (isDefinite) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: palette.errorContainer,
         borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
-      child:
-          Text('Non-Veg', style: AppText.labelCaps(palette.onErrorContainer)),
+      child: Text('Non-Veg', style: AppText.labelCaps(palette.onErrorContainer)),
     );
   }
-}
-
-class _PossiblyBadge extends StatelessWidget {
-  const _PossiblyBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.palette;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: palette.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppRadius.full),
-        border: Border.all(color: palette.outlineVariant),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: palette.uncertain,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.base),
-          Text('Possibly', style: AppText.labelCaps(palette.onSurface)),
-        ],
-      ),
-    );
-  }
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+    decoration: BoxDecoration(
+      color: palette.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(AppRadius.full),
+      border: Border.all(color: palette.outlineVariant),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: palette.uncertain, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: AppSpacing.base),
+        Text('Possibly', style: AppText.labelCaps(palette.onSurface)),
+      ],
+    ),
+  );
 }

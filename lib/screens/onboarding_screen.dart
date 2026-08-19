@@ -19,9 +19,9 @@ class OnboardingScreen extends StatelessWidget {
                 const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
-                AppSpacing.containerMargin,
+                AppSpacing.md,
                 AppSpacing.xl,
-                AppSpacing.containerMargin,
+                AppSpacing.md,
                 AppSpacing.lg,
               ),
               child: Column(

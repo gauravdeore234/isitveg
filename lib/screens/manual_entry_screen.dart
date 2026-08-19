@@ -64,10 +64,10 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
       body: AppContentCanvas(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
-            AppSpacing.containerMargin,
+            AppSpacing.md,
             AppSpacing.lg,
-            AppSpacing.containerMargin,
-            AppSpacing.containerMargin,
+            AppSpacing.md,
+            AppSpacing.md,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

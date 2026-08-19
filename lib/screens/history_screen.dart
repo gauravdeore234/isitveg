@@ -26,12 +26,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _loadHistory();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadHistory();
-  }
-
   Future<void> _loadHistory() async {
     final items = await _historyService.getHistory();
     if (mounted) {
@@ -126,9 +120,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.containerMargin,
                           AppSpacing.md,
-                          AppSpacing.containerMargin,
+                          AppSpacing.md,
+                          AppSpacing.md,
                           AppSpacing.md,
                         ),
                         child: Row(
@@ -153,9 +147,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           onRefresh: _loadHistory,
                           child: ListView.separated(
                             padding: const EdgeInsets.fromLTRB(
-                              AppSpacing.containerMargin,
+                              AppSpacing.md,
                               0,
-                              AppSpacing.containerMargin,
+                              AppSpacing.md,
                               AppSpacing.lg,
                             ),
                             itemCount: _items.length,
@@ -348,7 +342,7 @@ class _HistoryCard extends StatelessWidget {
   /// Reads the stored `matchedText|Name;;…` blob and returns a de-duplicated,
   /// comma-separated list of flagged ingredient names, or null if there are
   /// none to show.
-  String? _flaggedNames(String? flaggedJson) {
+  static String? _flaggedNames(String? flaggedJson) {
     if (flaggedJson == null || flaggedJson.isEmpty) return null;
 
     final names = <String>[];
@@ -361,7 +355,7 @@ class _HistoryCard extends StatelessWidget {
     return names.isEmpty ? null : names.join(', ');
   }
 
-  String _formatTimeAgo(DateTime date) {
+  static String _formatTimeAgo(DateTime date) {
     final diff = DateTime.now().difference(date);
     if (diff.inMinutes < 1) return 'Just now';
     if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';

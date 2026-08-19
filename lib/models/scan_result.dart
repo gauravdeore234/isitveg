@@ -48,19 +48,14 @@ class ScanResult {
       'id': id,
       'raw_text': rawText,
       'verdict': verdict.index,
-      'categories': categories.map((c) => c.index).toList().join(','),
+      'categories': categories.map((c) => c.index).join(','),
       'scanned_at': scannedAt.toIso8601String(),
       'image_path': imagePath,
       'flagged_json': flaggedIngredients
           .map((f) => '${f.matchedText}|${f.ingredient.name}')
-          .toList()
           .join(';;'),
     };
   }
-
-  String get verdictLabel => verdict.label;
-
-  String get verdictSummary => verdict.summary;
 
   /// Emoji + label pairs shown as chips on the verdict card.
   List<({String emoji, String label})> get categoryChips {
@@ -80,20 +75,4 @@ class ScanResult {
     }).toList();
   }
 
-  List<String> get categoryLabels {
-    return categories.map((c) {
-      switch (c) {
-        case IngredientCategory.meat:
-          return 'Contains Meat';
-        case IngredientCategory.poultry:
-          return 'Contains Poultry';
-        case IngredientCategory.fish:
-          return 'Contains Fish';
-        case IngredientCategory.egg:
-          return 'Contains Egg';
-        case IngredientCategory.insect:
-          return 'Insect-Derived';
-      }
-    }).toList();
-  }
 }

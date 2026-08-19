@@ -16,20 +16,21 @@ class VerdictBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final (bg, fg, icon) = switch (verdict) {
       Verdict.vegetarian => (
-          AppColors.primaryContainer,
-          AppColors.onPrimaryContainer,
+          palette.primaryContainer,
+          palette.onPrimaryContainer,
           Icons.check_circle,
         ),
       Verdict.nonVegetarian => (
-          AppColors.error,
-          AppColors.onError,
+          palette.error,
+          palette.onError,
           Icons.cancel,
         ),
       Verdict.uncertain => (
-          AppColors.uncertain,
-          AppColors.onSurface,
+          palette.uncertain,
+          palette.onSurface,
           Icons.help,
         ),
     };
