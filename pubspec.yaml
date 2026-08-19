@@ -1,0 +1,36 @@
+name: is_it_veg
+description: Offline vegetarian food scanner — scan ingredient lists to check if a product is vegetarian.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Camera
+  camera: ^0.11.0
+  image_picker: ^1.1.2
+
+  # On-device OCR (bundled Latin model, additional scripts downloadable)
+  google_mlkit_text_recognition: ^0.15.0
+
+  # Typography
+  google_fonts: ^6.2.1
+
+  # Storage
+  sqflite: ^2.3.3
+  path: ^1.9.0
+  shared_preferences: ^2.3.2
+  path_provider: ^2.1.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
