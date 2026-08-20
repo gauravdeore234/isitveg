@@ -1,3 +1,4 @@
+import 'dart:ui' show Size;
 import 'ingredient.dart';
 
 enum Verdict {
@@ -33,6 +34,11 @@ class ScanResult {
   final DateTime scannedAt;
   final String? imagePath;
 
+  /// Pixel dimensions of the scanned image, so the result screen can scale the
+  /// flagged-ingredient boxes onto the displayed image. Null when there is no
+  /// image (manual entry) or no box data (reopened history scan).
+  final Size? imageSize;
+
   ScanResult({
     this.id,
     required this.rawText,
@@ -41,6 +47,7 @@ class ScanResult {
     required this.categories,
     DateTime? scannedAt,
     this.imagePath,
+    this.imageSize,
   }) : scannedAt = scannedAt ?? DateTime.now();
 
   Map<String, dynamic> toMap() {

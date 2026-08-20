@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../models/scan_result.dart';
@@ -5,6 +6,7 @@ import '../services/history_service.dart';
 import '../widgets/app_top_bar.dart';
 import '../widgets/verdict_badge.dart';
 import '../widgets/flagged_ingredient_card.dart';
+import '../widgets/highlighted_label_image.dart';
 import 'manual_entry_screen.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -60,6 +62,8 @@ class _ResultScreenState extends State<ResultScreen>
   Widget build(BuildContext context) {
     final result = widget.result;
     final palette = context.palette;
+    final hasImage = result.imagePath != null &&
+        File(result.imagePath!).existsSync();
 
     return Scaffold(
       appBar: AppTopBar.back(context),
@@ -116,7 +120,7 @@ class _ResultScreenState extends State<ResultScreen>
                       children: [
                         Flexible(
                           child: Text(
-                            'Extracted Text',
+                            hasImage ? 'Scanned Label' : 'Extracted Text',
                             overflow: TextOverflow.ellipsis,
                             style: AppText.titleLg(palette.onSurface),
                           ),
@@ -132,10 +136,15 @@ class _ResultScreenState extends State<ResultScreen>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.edit_outlined,
-                                    size: 16, color: palette.primary),
+                                Icon(
+                                  hasImage
+                                      ? Icons.text_fields
+                                      : Icons.edit_outlined,
+                                  size: 16,
+                                  color: palette.primary,
+                                ),
                                 const SizedBox(width: AppSpacing.xs),
-                                Text('Edit',
+                                Text(hasImage ? 'View text' : 'Edit',
                                     style: AppText.bodySm(palette.primary)),
                               ],
                             ),
@@ -144,7 +153,14 @@ class _ResultScreenState extends State<ResultScreen>
                       ],
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    _ExtractedTextCard(text: result.rawText),
+                    if (hasImage)
+                      HighlightedLabelImage(
+                        imagePath: result.imagePath!,
+                        imageSize: result.imageSize,
+                        flagged: result.flaggedIngredients,
+                      )
+                    else
+                      _ExtractedTextCard(text: result.rawText),
                   ],
                 ),
               ),

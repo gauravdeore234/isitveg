@@ -20,6 +20,9 @@ debug emulator — several bugs (R8 crashes, signing) only appear in release.
       ("rind"), "reveal" must NOT flag veal. (Regression: substring matcher.)
 - [ ] Safe declarations suppress flags — "soy lecithin (E322)" stays veg
 - [ ] OCR noise handled — pipe-for-i, broken brackets, extra spaces don't crash
+- [ ] **Unreadable / non-Latin label never green-lights** — a blank, blurry, or
+      foreign-script (e.g. Chinese) image shows the "Couldn't read label" dialog,
+      NOT a "Vegetarian" verdict
 
 ## Scan flows
 
@@ -28,6 +31,9 @@ debug emulator — several bugs (R8 crashes, signing) only appear in release.
       this once; keep minify off or crash-test every release)
 - [ ] **Manual entry** → paste text → correct verdict
 - [ ] **Edit extracted text** → re-analyze reflects the edit
+- [ ] **Result image highlights** — a scanned photo shows the label with red
+      boxes on definite non-veg words and amber on possible ones, aligned to the
+      right words; manual entries still show the extracted-text card
 
 ## History
 

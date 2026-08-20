@@ -20,11 +20,11 @@ class LanguagePackService {
     LanguagePack pack, {
     void Function(double progress)? onProgress,
   }) async {
-    // For non-Latin scripts, ML Kit downloads the model on first use when
-    // you instantiate TextRecognizer with the appropriate script.
-    // We simulate the download here and persist the state.
-    // In production, wire up google_mlkit_commons ModelManager for real
-    // progress events.
+    // Enabling a pack persists the script id, which the scanner reads to decide
+    // which non-Latin recognizers to try (see OcrService.recognizeBest). ML Kit
+    // fetches the actual model on that script's first use when online; the
+    // progress here is simulated. ponytail: wire up google_mlkit_commons
+    // ModelManager for real download progress when this needs to be exact.
     if (pack.isBundled) return;
 
     const steps = 10;

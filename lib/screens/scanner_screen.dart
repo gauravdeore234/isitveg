@@ -1,9 +1,14 @@
+import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
 import '../config/theme.dart';
+import '../models/scan_result.dart';
 import '../services/ocr_service.dart';
 import '../services/ingredient_analyzer.dart';
+import '../services/label_scan.dart';
+import '../services/language_pack_service.dart';
 import '../widgets/camera_overlay.dart';
 import 'result_screen.dart';
 import 'manual_entry_screen.dart';
@@ -26,6 +31,15 @@ class _ScannerScreenState extends State<ScannerScreen>
   bool _torchOn = false;
   String? _error;
 
+  /// Scripts the user has enabled in Settings; drives which OCR recognizers a
+  /// non-Latin label is retried against. Latin is always available.
+  Set<String> _enabledScripts = {'latin'};
+
+  /// A Latin pass with fewer real words than this is treated as an unreadable
+  /// (likely non-Latin) label rather than a genuine ingredient list, so we warn
+  /// instead of defaulting to a false "Vegetarian" verdict.
+  static const int _minReadableWords = 3;
+
   /// Height of the control strip + floating nav bar the overlay must clear.
   static const double _controlsInset = 150;
 
@@ -34,6 +48,12 @@ class _ScannerScreenState extends State<ScannerScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initCamera();
+    _loadEnabledScripts();
+  }
+
+  Future<void> _loadEnabledScripts() async {
+    final packs = await LanguagePackService().getDownloadedPacks();
+    if (mounted) setState(() => _enabledScripts = packs);
   }
 
   @override
@@ -103,31 +123,111 @@ class _ScannerScreenState extends State<ScannerScreen>
 
   Future<void> _analyzeImage(String path) async {
     try {
-      final text = await _ocrService.recognizeFromPath(path);
+      final file = File(path);
+      final outcome = await _ocrService.recognizeBest(
+        file,
+        enabledScriptIds: _enabledScripts,
+      );
+      final text = outcome.text.text;
 
-      if (text.trim().isEmpty) {
-        if (mounted) {
-          setState(() => _isProcessing = false);
-          _showMessage(
-              'No text found. Try moving closer or improving lighting.');
-        }
+      // A non-Latin recognizer read the label better than Latin: we know the
+      // script but the ingredient database is English-only, so we must not
+      // guess a verdict — name the language and send the user to Manual entry.
+      if (outcome.scriptId != 'latin') {
+        _stopProcessing();
+        _showLanguageBlock(scriptId: outcome.scriptId);
         return;
       }
 
-      final result = _analyzer.analyze(text, imagePath: path);
+      // Empty or sparse Latin output means either a blank/blurry shot or a
+      // label in a script we can't read. Either way, warn instead of defaulting
+      // to a false "Vegetarian" verdict.
+      if (_wordCount(text) < _minReadableWords) {
+        _stopProcessing();
+        _showLanguageBlock(scriptId: null);
+        return;
+      }
+
+      final analyzed = _analyzer.analyze(text, imagePath: path);
+      final imageSize = await _decodeSize(file);
+      final flagged = attachBoxes(outcome.text, analyzed.flaggedIngredients);
+
+      final result = ScanResult(
+        rawText: analyzed.rawText,
+        verdict: analyzed.verdict,
+        flaggedIngredients: flagged,
+        categories: analyzed.categories,
+        imagePath: path,
+        imageSize: imageSize,
+      );
 
       if (mounted) {
-        setState(() => _isProcessing = false);
+        _stopProcessing();
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => ResultScreen(result: result)),
         );
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-        _showMessage('Error: $e');
-      }
+      _stopProcessing();
+      if (mounted) _showMessage('Error: $e');
     }
+  }
+
+  void _stopProcessing() {
+    if (mounted) setState(() => _isProcessing = false);
+  }
+
+  int _wordCount(String text) =>
+      RegExp(r'[a-zA-Z]{3,}').allMatches(text).length;
+
+  Future<ui.Size?> _decodeSize(File file) async {
+    try {
+      final decoded = await decodeImageFromList(await file.readAsBytes());
+      final size = ui.Size(
+        decoded.width.toDouble(),
+        decoded.height.toDouble(),
+      );
+      decoded.dispose();
+      return size;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Shown when a label can't be verified: either a detected non-Latin
+  /// [scriptId] (named for the user) or, when null, an unreadable label that
+  /// may be in a script whose pack isn't enabled.
+  void _showLanguageBlock({required String? scriptId}) {
+    final lang = scriptId == null ? null : languageName(scriptId);
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(lang != null ? '$lang label detected' : "Couldn't read label"),
+        content: Text(
+          lang != null
+              ? 'This looks like a $lang label. Ingredient checking for $lang '
+                  "isn't available yet — please type the ingredients using "
+                  'Manual entry.'
+              : "Couldn't read the ingredients. Move closer or improve lighting "
+                  'and try again. If the label is in another language (Chinese, '
+                  'Japanese, Korean, Hindi…), download that language pack in '
+                  'Settings, or use Manual entry.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Dismiss'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _openManualEntry();
+            },
+            child: const Text('Manual entry'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _captureAndAnalyze() async {
