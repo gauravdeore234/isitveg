@@ -908,7 +908,11 @@ class IngredientDatabase {
 
     for (final ingredient in _substringIngredients) {
       for (final alias in ingredient.aliases) {
-        if (alias.length >= 4 && lower.contains(alias)) {
+        // Whole-word match only: a raw substring test flags "tamarind" as
+        // beef ("rind") and "reveal" as veal. Word boundaries keep the alias
+        // from matching inside a longer, unrelated word.
+        if (alias.length >= 4 &&
+            RegExp('\\b${RegExp.escape(alias)}\\b').hasMatch(lower)) {
           return ingredient;
         }
       }

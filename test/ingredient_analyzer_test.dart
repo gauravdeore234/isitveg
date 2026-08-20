@@ -169,5 +169,16 @@ void main() {
           .length;
       expect(gelatinMatches, equals(1));
     });
+
+    test('meat alias inside a longer word is not flagged', () {
+      // "tamarind" contains "rind" (a beef alias); word boundaries must
+      // keep it from being flagged as non-vegetarian.
+      const text = 'Potatoes, tamarind powder, chilli powder, salt';
+      final result = analyzer.analyze(text);
+      expect(
+        result.flaggedIngredients.any((f) => f.ingredient.name == 'Beef'),
+        isFalse,
+      );
+    });
   });
 }

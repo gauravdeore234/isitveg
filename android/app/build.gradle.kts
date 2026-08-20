@@ -39,15 +39,13 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-            // ponytail: skip native strip (no Xcode.app on this machine); Play Store is fine with unstripped .so
-            packagingOptions {
-                jniLibs.keepDebugSymbols.add("**/*.so")
+            // Minification is off: R8 was stripping ML Kit / image_picker
+            // classes used via reflection, crashing gallery scans in release.
+            // Flutter's default template ships minify off for this reason.
+            isMinifyEnabled = false
+            isShrinkResources = false
+            ndk {
+                debugSymbolLevel = "none"
             }
         }
     }
