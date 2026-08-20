@@ -13,11 +13,12 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _currentIndex = 0;
+  final _historyKey = GlobalKey<HistoryScreenState>();
 
-  final _screens = const [
-    ScannerScreen(),
-    HistoryScreen(),
-    SettingsScreen(),
+  late final _screens = [
+    const ScannerScreen(),
+    HistoryScreen(key: _historyKey),
+    const SettingsScreen(),
   ];
 
   @override
@@ -35,7 +36,10 @@ class _HomeShellState extends State<HomeShell> {
       ),
       bottomNavigationBar: AppBottomNav(
         currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        onTap: (i) {
+          setState(() => _currentIndex = i);
+          if (i == 1) _historyKey.currentState?.reload();
+        },
         items: AppBottomNav.defaultItems,
       ),
     );

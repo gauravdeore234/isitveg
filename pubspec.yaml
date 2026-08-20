@@ -2,7 +2,7 @@ name: is_it_veg
 description: Offline vegetarian food scanner — scan ingredient lists to check if a product is vegetarian.
 publish_to: 'none'
 
-version: 1.0.1+2
+version: 1.0.2+3
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

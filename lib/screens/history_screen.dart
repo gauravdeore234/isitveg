@@ -12,10 +12,10 @@ class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
   @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
+  State<HistoryScreen> createState() => HistoryScreenState();
 }
 
-class _HistoryScreenState extends State<HistoryScreen> {
+class HistoryScreenState extends State<HistoryScreen> {
   final HistoryService _historyService = HistoryService();
   List<Map<String, dynamic>> _items = [];
   bool _loading = true;
@@ -25,6 +25,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.initState();
     _loadHistory();
   }
+
+  /// Re-reads history from disk. Called by the shell when this tab is
+  /// selected, since the IndexedStack keeps the screen alive and initState
+  /// only runs once — a scan saved from another tab would otherwise not show.
+  void reload() => _loadHistory();
 
   Future<void> _loadHistory() async {
     final items = await _historyService.getHistory();
